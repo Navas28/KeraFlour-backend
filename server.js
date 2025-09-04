@@ -3,7 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 import authRoutes from "./routes/authRoutes.js";
-import { authenticate, authorizeAdmin } from "./middleware/authMiddleware.js";
+import productRoutes from "./routes/productRoutes.js";
 
 dotenv.config();
 const app = express();
@@ -11,10 +11,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.use("/api/auth", authRoutes);
-app.get("/api/admin/data", authenticate, authorizeAdmin, (req, res) => {
-    res.json({ secredData: "Only admins can see this" });
-});
+app.use("/auth", authRoutes);
+app.use("/api/products", productRoutes);
 
 mongoose
     .connect(process.env.MONGO_URI)
