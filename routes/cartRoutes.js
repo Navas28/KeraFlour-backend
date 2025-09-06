@@ -13,16 +13,16 @@ async function getOrCreateCart(userId) {
     return cart;
 }
 function formatCart(cart) {
-    const items = (cart.items || []).map((item) => ({
-        id: item.product.toString(),
-        name: item.name,
-        image: item.image,
-        slug: item.slug,
-        pricePerKg: item.pricePerKg,
-        quantityKg: item.quantityKg,
-    }));
-    const totalAmount = items.reduce((a, b) => a + b.pricePerKg * b.quantityKg, 0);
-    return { items, totalAmount };
+  const items = (cart.items || []).map((item) => ({
+    product: item.product.toString(),   
+    name: item.name,
+    image: item.image,
+    slug: item.slug,
+    pricePerKg: item.pricePerKg,
+    quantityKg: item.quantityKg,
+  }));
+  const totalAmount = items.reduce((a, b) => a + b.pricePerKg * b.quantityKg, 0);
+  return { items, totalAmount };
 }
 
 // get logged-in users cart
