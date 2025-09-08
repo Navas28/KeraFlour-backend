@@ -9,7 +9,7 @@ const router = express.Router();
 router.post("/", authenticate, async (req, res) => {
     try {
         const order = new Order({
-            user: req.user.id || req.user._id,
+            user: req.user.id,
             ...req.body,
         });
         const saveOrder = await order.save();
@@ -32,6 +32,18 @@ router.get("/", authenticate, async (req, res) => {
     }
 });
 
+// get logged in user orders
+
+router.get("/my", authenticate, async (req, res) => {
+    try {
+        const orders = await Order.find({ user: req.user.id }).populate("user", "name email");
+        res.json(orders);
+    } catch (error) {
+        console.error("get logged user orders error:", error);
+        res.status(500).json({ message: "Failed to fetch user orders", error });
+    }
+});
+
 // get order by id
 
 router.get("/:id", authenticate, async (req, res) => {
@@ -39,25 +51,14 @@ router.get("/:id", authenticate, async (req, res) => {
         const order = await Order.findById(req.params.id).populate("items.product");
         if (!order) return res.status(404).json({ message: "Order not found" });
 
-        if (order.user.toString() !== req.user.id.toString()) {
-            return res.status(404).json({ message: "Forbidden" });
+        if (order.user.toString() !== req.user.id) {
+            return res.status(403).json({ message: "Forbidden" });
         }
+
         res.json(order);
     } catch (error) {
         console.error("Error getting order", error);
         res.status(500).json({ message: "Server error", error: error.message });
-    }
-});
-
-// get logged in user orders
-
-router.get("/my", authenticate, async (req, res) => {
-    try {
-        const orders = await Order.find({ user: req.user._id });
-        res.json(orders);
-    } catch (error) {
-        console.error("get logged user orders error:", error);
-        res.status(500).json({ message: "Failed to fetch user orders", error });
     }
 });
 
@@ -69,8 +70,16 @@ router.put("/:id/status", authenticate, async (req, res) => {
         const order = await Order.findById(req.params.id);
         if (!order) return res.status(404).json({ message: "Order not found" });
         order.status = status;
-        await order.save();
 
+        if (order.paymentMethod === "COD") {
+            if (status === "confirmed" || status === "delivered") {
+                order.paymentStatus = "paid";
+            } else if (status === "pending" || status === "canceled") {
+                order.paymentStatus = "pending";
+            }
+        }
+
+        await order.save();
         res.json(order);
     } catch (error) {
         console.error("update order error:", error);

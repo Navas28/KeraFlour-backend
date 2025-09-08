@@ -9,13 +9,15 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 router.post("/stripe-checkout", authenticate, async (req, res) => {
     try {
         const { orderData } = req.body;
+
         const MINIMUM_AMOUNT_INR = 50;
         const totalToCharge = Math.max(orderData.totalAmount, MINIMUM_AMOUNT_INR);
         const amountInPaise = Math.round(totalToCharge * 100);
 
         const newOrder = await Order.create({
-            user: req.user._id || req.user.id ,
+            user: req.user.id,
             ...orderData,
+            totalAmount: totalToCharge,
             paymentStatus: "pending",
             status: "pending",
         });
@@ -33,8 +35,9 @@ router.post("/stripe-checkout", authenticate, async (req, res) => {
                 },
             ],
             mode: "payment",
-            success_url: `http://localhost:3000/payment-success?session_id={CHECKOUT_SESSION_ID}`,
-            cancel_url: `http://localhost:3000/cart`,
+            metadata: { orderId: newOrder._id.toString() },
+           success_url: `${process.env.CLIENT_URL}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+            cancel_url: `${process.env.CLIENT_URL}/cart`,
         });
 
         res.json({ id: session.id, url: session.url });
@@ -48,7 +51,7 @@ router.get("/stripe-session/:id", authenticate, async (req, res) => {
     try {
         const session = await stripe.checkout.sessions.retrieve(req.params.id);
 
-        const orderId = session.success_url.split("order_id=")[1];
+        const orderId = session.metadata?.orderId;
 
         if (session.payment_status === "paid" && orderId) {
             await Order.findByIdAndUpdate(orderId, {
@@ -56,6 +59,7 @@ router.get("/stripe-session/:id", authenticate, async (req, res) => {
                 status: "confirmed",
             });
         }
+
         res.json(session);
     } catch (error) {
         console.error("failed to fetch stripe session", error);
