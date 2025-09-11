@@ -1,5 +1,15 @@
 import mongoose from "mongoose";
 
+const addressSubSchema = new mongoose.Schema(
+    {
+        place: { type: String, default: "" },
+        city: { type: String, default: "" },
+        state: { type: String, default: "" },
+        pincode: { type: String, default: "" },
+    },
+    { _id: false }
+);
+
 const orderSchema = new mongoose.Schema(
     {
         user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
@@ -15,12 +25,8 @@ const orderSchema = new mongoose.Schema(
             type: String,
             enum: ["delivery", "pickup", "both"],
         },
-        address: {
-            type: String,
-            required: function () {
-                return this.addOn === "delivery" || this.addOn === "both";
-            },
-        },
+        deliveryAddress: addressSubSchema,
+        pickupAddress: addressSubSchema,
         addOnCharge: {
             type: Number,
             default: 0,
