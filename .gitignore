@@ -1,10 +1,7 @@
-# Firebase service account
-*.json
+
 # Environment variables
 .env
+
 # Dependencies
 /node_modules
-/node_modules
-.env
 *.log
-*.json
