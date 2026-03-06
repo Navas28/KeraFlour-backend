@@ -3,7 +3,8 @@ import Product from "../model/Product.js";
 
 export const createOrder = async (req, res) => {
   try {
-    const { productId, quantity, pickupMethod, notes } = req.body;
+    const { productId, quantity, pickupMethod, notes, slotDate, slotTime } =
+      req.body;
     const userId = req.user.id;
 
     const product = await Product.findById(productId);
@@ -12,6 +13,29 @@ export const createOrder = async (req, res) => {
     }
 
     const totalPrice = product.pricePerKg * quantity;
+    const estimatedMinutes = product.grindingTimePerKg * quantity;
+
+    // Validate slot availability if slot is provided
+    if (slotDate && slotTime) {
+      const existingOrders = await Order.find({
+        slotDate,
+        slotTime,
+        machineType: product.machineType,
+        status: { $ne: "cancelled" },
+      });
+
+      const usedMinutes = existingOrders.reduce(
+        (sum, o) => sum + (o.estimatedMinutes || 0),
+        0,
+      );
+      if (usedMinutes + estimatedMinutes > 60) {
+        return res
+          .status(400)
+          .json({
+            message: "Selected slot is full. Please choose another time.",
+          });
+      }
+    }
 
     const order = new Order({
       user: userId,
@@ -20,6 +44,10 @@ export const createOrder = async (req, res) => {
       totalPrice,
       pickupMethod,
       notes,
+      slotDate,
+      slotTime,
+      estimatedMinutes,
+      machineType: product.machineType,
     });
 
     await order.save();

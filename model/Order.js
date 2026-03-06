@@ -34,6 +34,19 @@ const orderSchema = new mongoose.Schema(
     notes: {
       type: String,
     },
+    slotDate: {
+      type: String, // Format: YYYY-MM-DD
+    },
+    slotTime: {
+      type: String, // Format: "10:00 AM - 11:00 AM" (or similar)
+    },
+    estimatedMinutes: {
+      type: Number,
+    },
+    machineType: {
+      type: String,
+      enum: ["grain", "spice"],
+    },
   },
   { timestamps: true },
 );

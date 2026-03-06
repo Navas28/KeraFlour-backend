@@ -8,7 +8,13 @@ const productSchema = new mongoose.Schema(
     image: { type: String },
     cloudinaryId: { type: String },
     pricePerKg: { type: Number, required: true },
-    grindingTimePerKg: { type: Number, default: 5 }, 
+    grindingTimePerKg: { type: Number, default: 10 },
+    machineType: {
+      type: String,
+      enum: ["grain", "spice"],
+      default: "grain",
+      required: true,
+    },
   },
   { timestamps: true },
 );

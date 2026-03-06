@@ -38,13 +38,14 @@ export const createProduct = async (req, res) => {
       };
     }
 
-    const { name, pricePerKg, grindingTimePerKg } = req.body;
+    const { name, pricePerKg, grindingTimePerKg, machineType } = req.body;
     const slug = slugify(name, { lower: true });
 
     const product = new Product({
       name,
       pricePerKg,
       grindingTimePerKg,
+      machineType,
       slug,
       ...imageData,
     });
@@ -81,6 +82,7 @@ export const updateProduct = async (req, res) => {
     product.pricePerKg = req.body.pricePerKg || product.pricePerKg;
     product.grindingTimePerKg =
       req.body.grindingTimePerKg || product.grindingTimePerKg;
+    product.machineType = req.body.machineType || product.machineType;
 
     await product.save();
     res.json(product);
