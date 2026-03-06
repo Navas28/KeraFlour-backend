@@ -13,8 +13,8 @@ export const signup = async (req, res) => {
   try {
     const { email, name, password, adminSecret } = req.body;
 
-    // Optional: Only allow signup if a specific secret is provided (for first admin/new admins)
-    const isAdmin = adminSecret === process.env.ADMIN_SECRET_KEY;
+    const isAdmin =
+      adminSecret?.trim() === process.env.ADMIN_SECRET_KEY?.trim();
 
     if (adminSecret && !isAdmin) {
       return res.status(403).json({ message: "Invalid Admin Secret Key" });

@@ -1,4 +1,4 @@
-import cloudinary from "./cloudinary.js";
+import cloudinary from "../config/cloudinary.js";
 import streamfier from "streamifier";
 
 export const uploadToCloudinary = (fileBuffer, folder = "KeraFlour") => {
