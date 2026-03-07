@@ -5,8 +5,7 @@ import express from "express";
 import cors from "cors";
 import authRoutes from "./routes/authRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
-import orderRoutes from "./routes/orderRoutes.js";
-import slotRoutes from "./routes/slotRoutes.js";
+import machineStatusRoutes from "./routes/machineStatusRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 
 import corsOptions from "./config/cors.js";
@@ -26,8 +25,7 @@ app.use(express.json());
 
 app.use("/auth", authRoutes);
 app.use("/api/products", productRoutes);
-app.use("/api/orders", orderRoutes);
-app.use("/api/slots", slotRoutes);
+app.use("/api/machines", machineStatusRoutes);
 app.use("/api/admin", adminRoutes);
 
 app.listen(process.env.PORT || 2000, () => {

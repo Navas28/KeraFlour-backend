@@ -1,7 +1,12 @@
 import jwt from "jsonwebtoken";
 
 export const authenticate = async (req, res, next) => {
-  const token = req.cookies.token || req.headers.authorization?.split(" ")[1];
+  const cookieToken = req.cookies?.token;
+  const headerToken = req.headers.authorization?.startsWith("Bearer ")
+    ? req.headers.authorization.split(" ")[1]
+    : null;
+
+  const token = headerToken || cookieToken;
 
   if (!token) {
     return res
@@ -14,7 +19,17 @@ export const authenticate = async (req, res, next) => {
     req.user = decoded;
     next();
   } catch (error) {
-    console.error("Auth middleware error:", error.message);
+    console.error("Reason:", error.message);
+
+    if (cookieToken) {
+      res.clearCookie("token", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+      });
+      console.log("Action: Cleared stale cookie from browser");
+    }
+
     res.status(401).json({ message: "Invalid or expired token" });
   }
 };
