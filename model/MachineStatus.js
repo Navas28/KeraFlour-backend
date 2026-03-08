@@ -10,12 +10,15 @@ const machineStatusSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["free", "busy", "packed", "maintenance"],
+      enum: ["free", "busy", "maintenance"],
       default: "free",
     },
     message: {
       type: String,
       default: "",
+    },
+    estimatedFreeAt: {
+      type: Date,
     },
     lastUpdated: {
       type: Date,

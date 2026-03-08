@@ -1,6 +1,7 @@
 import MachineStatus from "../model/MachineStatus.js";
 import MillConfig from "../model/MillConfig.js";
 import Product from "../model/Product.js";
+import { io } from "../server.js";
 
 export const getMachineStatuses = async (req, res) => {
   try {
@@ -21,13 +22,15 @@ export const getMachineStatuses = async (req, res) => {
 
 export const updateMachineStatus = async (req, res) => {
   try {
-    const { machineType, status, message } = req.body;
+    const { machineType, status, message, estimatedFreeAt } = req.body;
 
     const updatedStatus = await MachineStatus.findOneAndUpdate(
       { machineType },
-      { status, message, lastUpdated: Date.now() },
+      { status, message, estimatedFreeAt, lastUpdated: Date.now() },
       { upsert: true, new: true },
     );
+
+    io.emit("machineStatusUpdated", updatedStatus);
 
     res.json(updatedStatus);
   } catch (error) {

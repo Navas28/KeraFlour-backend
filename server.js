@@ -13,9 +13,16 @@ import connectDB from "./config/db.js";
 import cookieParser from "cookie-parser";
 import { globalLimiter } from "./middleware/rateLimiter.js";
 
+import { createServer } from "http";
+import { Server } from "socket.io";
+
 connectDB();
 
 const app = express();
+const httpServer = createServer(app);
+export const io = new Server(httpServer, {
+  cors: corsOptions,
+});
 
 app.use(globalLimiter);
 app.use(cookieParser());
@@ -28,6 +35,13 @@ app.use("/api/products", productRoutes);
 app.use("/api/machines", machineStatusRoutes);
 app.use("/api/admin", adminRoutes);
 
-app.listen(process.env.PORT || 2000, () => {
-  console.log(`Server running on port ${process.env.PORT || 2000}`);
+io.on("connection", (socket) => {
+  socket.on("disconnect", () => {
+    console.log("A client disconnected");
+  });
+});
+
+const PORT = process.env.PORT || 2000;
+httpServer.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
