@@ -30,6 +30,10 @@ app.use(cors(corsOptions));
 
 app.use(express.json());
 
+app.get("/", (req, res) => {
+  res.status(200).send("KeraFlour Backend is Live 🚀");
+});
+
 app.use("/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/machines", machineStatusRoutes);
