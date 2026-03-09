@@ -3,6 +3,7 @@ const corsOptions = {
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "https://keraflour.vercel.app",
+    "https://keraflour.vercel.app/",
   ],
   credentials: true,
   optionsSuccessStatus: 200,

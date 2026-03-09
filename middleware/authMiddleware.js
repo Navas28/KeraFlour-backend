@@ -24,8 +24,8 @@ export const authenticate = async (req, res, next) => {
     if (cookieToken) {
       res.clearCookie("token", {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
+        secure: true,
+        sameSite: "none",
       });
       console.log("Action: Cleared stale cookie from browser");
     }
